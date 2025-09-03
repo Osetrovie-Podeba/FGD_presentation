@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐟 Fish Gender Classification AI</title>
+    <title>🐟 Классификация пола рыбы ИИ</title>
     <link rel="stylesheet" href="/static/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -14,27 +14,24 @@
             <div class="header-content">
                 <h1 class="title">
                     <i class="fas fa-fish"></i>
-                    Fish Gender Classification
-                    <span class="subtitle">AI-Powered Ultrasound Analysis</span>
+                    Классификация пола рыбы
+                    <span class="subtitle">Анализ ультразвука с помощью ИИ</span>
                 </h1>
             </div>
         </header>
-
         <!-- Navigation Tabs -->
         <nav class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('predefined')">
-                <i class="fas fa-images"></i> Sample Dataset
+                <i class="fas fa-images"></i> Примеры изображений
             </button>
             <button class="tab-btn" onclick="switchTab('upload')">
-                <i class="fas fa-upload"></i> Upload Images
+                <i class="fas fa-upload"></i> Загрузить изображения
             </button>
         </nav>
-
         <!-- Predefined Dataset Section -->
         <section class="dataset-section" id="predefinedSection">
-            <h2><i class="fas fa-database"></i> Select Sample Images</h2>
-            <p class="section-description">Choose from our curated dataset of fish ultrasound images</p>
-            
+            <h2><i class="fas fa-database"></i> Выберите примерные изображения</h2>
+            <p class="section-description">Выберите из нашей подобранной коллекции ультразвуковых изображений рыбы</p>
             <div class="dataset-grid" id="datasetGrid">
                 {% for item in dataset %}
                 <div class="dataset-card" data-id="{{ item.id }}">
@@ -49,83 +46,76 @@
                         <h4>{{ item.filename }}</h4>
                         <p>{{ item.description }}</p>
                         <span class="expected-gender gender-{{ item.expected_gender.lower() }}">
-                            Expected: {{ item.expected_gender }}
+                            Ожидаемый: {{ item.expected_gender }}
                         </span>
                     </div>
                 </div>
                 {% endfor %}
             </div>
-            
             <div class="dataset-controls">
                 <button class="control-btn" onclick="selectAll()">
-                    <i class="fas fa-check-double"></i> Select All
+                    <i class="fas fa-check-double"></i> Выбрать все
                 </button>
                 <button class="control-btn" onclick="clearSelection()">
-                    <i class="fas fa-times"></i> Clear Selection
+                    <i class="fas fa-times"></i> Очистить выбор
                 </button>
                 <button class="analyze-btn" onclick="analyzeSelected()" disabled>
-                    <i class="fas fa-brain"></i> Analyze Selected (<span id="selectedCount">0</span>)
+                    <i class="fas fa-brain"></i> Проанализировать выбранное (<span id="selectedCount">0</span>)
                 </button>
             </div>
         </section>
-
         <!-- Upload Section -->
         <section class="upload-section" id="uploadSection" style="display: none;">
-            <h2><i class="fas fa-cloud-upload-alt"></i> Upload Your Images</h2>
-            <p class="section-description">Upload your own fish ultrasound images for analysis</p>
-            
+            <h2><i class="fas fa-cloud-upload-alt"></i> Загрузите свои изображения</h2>
+            <p class="section-description">Загрузите свои ультразвуковые изображения рыбы для анализа</p>
             <div class="upload-container">
                 <div class="upload-zone" id="uploadZone">
                     <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                    <h3>Upload Fish Ultrasound Images</h3>
-                    <p>Drag & drop images here or click to browse</p>
+                    <h3>Загрузка ультразвуковых изображений рыбы</h3>
+                    <p>Перетащите изображения сюда или нажмите для выбора</p>
                     <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
                     <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                        <i class="fas fa-images"></i> Choose Images
+                        <i class="fas fa-images"></i> Выбрать изображения
                     </button>
                 </div>
             </div>
         </section>
-
         <!-- Results Section -->
         <section class="results-section" id="resultsSection" style="display: none;">
-            <h2><i class="fas fa-chart-bar"></i> Analysis Results</h2>
+            <h2><i class="fas fa-chart-bar"></i> Результаты анализа</h2>
             <div class="results-grid" id="resultsGrid"></div>
-            
             <!-- Statistics -->
             <div class="stats-container" id="statsContainer" style="display: none;">
                 <div class="stat-card">
                     <i class="fas fa-mars male-icon"></i>
-                    <span class="stat-label">Male</span>
+                    <span class="stat-label">Самец</span>
                     <span class="stat-value" id="maleCount">0</span>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-venus female-icon"></i>
-                    <span class="stat-label">Female</span>
+                    <span class="stat-label">Самка</span>
                     <span class="stat-value" id="femaleCount">0</span>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-percentage"></i>
-                    <span class="stat-label">Avg Confidence</span>
+                    <span class="stat-label">Средняя уверенность</span>
                     <span class="stat-value" id="avgConfidence">0%</span>
                 </div>
             </div>
         </section>
-
         <!-- Loading Animation -->
         <div class="loading-overlay" id="loadingOverlay" style="display: none;">
             <div class="loading-spinner">
                 <div class="fish-animation">
                     <i class="fas fa-fish"></i>
                 </div>
-                <p>Analyzing ultrasound images...</p>
+                <p>Анализ ультразвуковых изображений...</p>
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
             </div>
         </div>
     </div>
-
     <script src="/static/script.js"></script>
 </body>
 </html>

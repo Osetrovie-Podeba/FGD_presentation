@@ -4,17 +4,16 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 import tensorflow as tf
 import numpy as np
-import cv2
-from PIL import Image
-import io
 import os
-from typing import List, Optional
+from typing import List
 import asyncio
 import uuid
-import json
+import utils.download_model as da
 from utils.image_processor import preprocess_image
 
 app = FastAPI(title="Fish Gender Classification", version="1.0.0")
+
+da.download()
 
 # Mount static files and templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -26,45 +25,47 @@ IMG_SIZE_Y = 250
 CONFIDENCE_THRESHOLD = 0.5
 DATASET_DIR = "static/dataset"
 
+
 # Predefined dataset information
 PREDEFINED_DATASET = [
     {
-        "id": "sample_1",
+        "id": "Фото 1",
         "filename": "f1.jpg",
         "expected_gender": "Female",  # For demo purposes
-        "path": "/static/dataset/sample_1.jpg"
+        "path": "/static/dataset/f1.jpg"
     },
     {
-        "id": "sample_2",
+        "id": "Фото 2",
         "filename": "m1.jpg",
         "expected_gender": "Male",
-        "path": "/static/dataset/sample_2.jpg"
+        "path": "/static/dataset/m1.jpg"
     },
     {
-        "id": "sample_3",
+        "id": "Фото 3",
         "filename": "f2.jpg",
         "expected_gender": "Female",
-        "path": "/static/dataset/sample_3.jpg"
+        "path": "/static/dataset/f2.jpg"
     },
     {
-        "id": "sample_4",
+        "id": "Фото 4",
         "filename": "m2.jpg",
         "expected_gender": "Male",
-        "path": "/static/dataset/sample_4.jpg"
+        "path": "/static/dataset/m2.jpg"
     },
     {
-        "id": "sample_5",
+        "id": "Фото 5",
         "filename": "f3.jpg",
         "expected_gender": "Female",
-        "path": "/static/dataset/sample_5.jpg"
+        "path": "/static/dataset/f3.jpg"
     },
     {
-        "id": "sample_6",
+        "id": "Фото 6",
         "filename": "m3.jpg",
         "expected_gender": "Male",
-        "path": "/static/dataset/sample_6.jpg"
+        "path": "/static/dataset/f3.jpg"
     }
 ]
+
 
 # Load model (with demo fallback)
 def load_model_safe():
@@ -85,6 +86,7 @@ except Exception as e:
     model = None
     DEMO_MODE = True
 
+
 @app.get("/")
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {
@@ -97,6 +99,7 @@ async def home(request: Request):
 async def get_dataset():
     """Return the predefined dataset for frontend"""
     return {"dataset": PREDEFINED_DATASET, "demo_mode": DEMO_MODE}
+
 
 @app.post("/predict")
 async def predict_fish_gender(files: List[UploadFile] = File(...)):
@@ -257,7 +260,6 @@ async def health_check():
     return {
         "status": "healthy",
         "model_loaded": model is not None,
-        "demo_mode": DEMO_MODE,
         "dataset_size": len(PREDEFINED_DATASET),
         "version": "1.0.0"
     }
