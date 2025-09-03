@@ -4,17 +4,16 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 import tensorflow as tf
 import numpy as np
-import cv2
-from PIL import Image
-import io
 import os
-from typing import List, Optional
+from typing import List
 import asyncio
 import uuid
-import json
+import utils.download_model as da
 from utils.image_processor import preprocess_image
 
 app = FastAPI(title="Fish Gender Classification", version="1.0.0")
+
+da.download()
 
 # Mount static files and templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -263,7 +262,6 @@ async def health_check():
     return {
         "status": "healthy",
         "model_loaded": model is not None,
-        "demo_mode": DEMO_MODE,
         "dataset_size": len(PREDEFINED_DATASET),
         "version": "1.0.0"
     }
