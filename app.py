@@ -4,16 +4,17 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 import tensorflow as tf
 import numpy as np
+import cv2
+from PIL import Image
+import io
 import os
-from typing import List
+from typing import List, Optional
 import asyncio
 import uuid
-import utils.download_model as da
+import json
 from utils.image_processor import preprocess_image
 
 app = FastAPI(title="Fish Gender Classification", version="1.0.0")
-
-da.download()
 
 # Mount static files and templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -29,43 +30,37 @@ DATASET_DIR = "static/dataset"
 PREDEFINED_DATASET = [
     {
         "id": "sample_1",
-        "filename": "sample_1.jpg",
-        "description": "Adult fish ultrasound - clear gonad structure",
+        "filename": "f1.jpg",
         "expected_gender": "Female",  # For demo purposes
         "path": "/static/dataset/sample_1.jpg"
     },
     {
         "id": "sample_2",
-        "filename": "sample_2.jpg",
-        "description": "Young fish ultrasound - developing reproductive organs",
+        "filename": "m1.jpg",
         "expected_gender": "Male",
         "path": "/static/dataset/sample_2.jpg"
     },
     {
         "id": "sample_3",
-        "filename": "sample_3.jpg",
-        "description": "Mature fish ultrasound - pronounced sexual dimorphism",
+        "filename": "f2.jpg",
         "expected_gender": "Female",
         "path": "/static/dataset/sample_3.jpg"
     },
     {
         "id": "sample_4",
-        "filename": "sample_4.jpg",
-        "description": "Fish ultrasound - early maturation stage",
+        "filename": "m2.jpg",
         "expected_gender": "Male",
         "path": "/static/dataset/sample_4.jpg"
     },
     {
         "id": "sample_5",
-        "filename": "sample_5.jpg",
-        "description": "High-quality ultrasound - optimal imaging conditions",
+        "filename": "f3.jpg",
         "expected_gender": "Female",
         "path": "/static/dataset/sample_5.jpg"
     },
     {
         "id": "sample_6",
-        "filename": "sample_6.jpg",
-        "description": "Challenging case - requires expert interpretation",
+        "filename": "m3.jpg",
         "expected_gender": "Male",
         "path": "/static/dataset/sample_6.jpg"
     }
@@ -262,6 +257,7 @@ async def health_check():
     return {
         "status": "healthy",
         "model_loaded": model is not None,
+        "demo_mode": DEMO_MODE,
         "dataset_size": len(PREDEFINED_DATASET),
         "version": "1.0.0"
     }
