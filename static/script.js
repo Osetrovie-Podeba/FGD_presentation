@@ -169,14 +169,6 @@ class FishGenderApp {
         statsContainer.style.display = 'grid';
         resultsGrid.innerHTML = '';
 
-        // Show demo mode banner if active
-        if (demoMode) {
-            const demoBanner = document.createElement('div');
-            demoBanner.className = 'demo-banner';
-            demoBanner.innerHTML = '🎭 DEMO MODE: Using simulated predictions for demonstration';
-            resultsGrid.appendChild(demoBanner);
-        }
-
         let maleCount = 0;
         let femaleCount = 0;
         let totalConfidence = 0;
@@ -191,7 +183,7 @@ class FishGenderApp {
             const card = this.createResultCard(result, index);
             resultsGrid.appendChild(card);
 
-            if (result.gender === 'Male') maleCount++;
+            if (result.gender === 'Самец') maleCount++;
             else femaleCount++;
 
             totalConfidence += result.confidence;
@@ -214,17 +206,17 @@ class FishGenderApp {
             const isCorrect = result.gender === result.expected_gender;
             comparisonHTML = `
                 <div class="result-comparison">
-                    <h5>📊 Prediction Analysis</h5>
+                    <h5>📊 Результаты анализа</h5>
                     <div class="comparison-item">
-                        <span>Expected:</span>
+                        <span>Ожидаемый:</span>
                         <span class="expected-gender gender-${result.expected_gender.toLowerCase()}">
-                            ${result.expected_gender}
+                            ${result.expected_gender_text}
                         </span>
                     </div>
                     <div class="comparison-item">
-                        <span>Predicted:</span>
+                        <span>Результат:</span>
                         <span class="accuracy-indicator accuracy-${isCorrect ? 'correct' : 'incorrect'}">
-                            ${isCorrect ? '✓ Correct' : '✗ Different'}
+                            ${isCorrect ? '✓ Верный' : '✗ Неверный'}
                         </span>
                     </div>
                 </div>
@@ -234,13 +226,13 @@ class FishGenderApp {
         card.innerHTML = `
             <img src="${result.image_path}" alt="${result.filename}" class="result-image">
             <div class="result-info">
-                <h3>${result.filename}</h3>
+                <h3>${result.filename_text}</h3>
                 ${result.description ? `<p class="image-description">${result.description}</p>` : ''}
                 <div class="gender-badge gender-${genderClass}">
-                    <i class="fas fa-${result.gender === 'Male' ? 'mars' : 'venus'}"></i>
-                    ${result.gender}
+                    <i class="fas fa-${result.gender === 'Самец' ? 'mars' : 'venus'}"></i>
+                    ${result.gender_text}
                 </div>
-                <p><strong>Confidence:</strong> ${result.confidence}%</p>
+                <p><strong>Точность прогноза:</strong> ${result.confidence}%</p>
                 <div class="confidence-bar">
                     <div class="confidence-fill" style="width: ${result.confidence}%"></div>
                 </div>
@@ -259,7 +251,7 @@ class FishGenderApp {
         card.innerHTML = `
             <div class="result-info">
                 <h3>${result.filename}</h3>
-                <p style="color: #f44336;"><strong>Error:</strong> ${result.error}</p>
+                <p style="color: #f44336;"><strong>Ошибка:</strong> ${result.error}</p>
             </div>
         `;
 

@@ -25,42 +25,53 @@ IMG_SIZE_Y = 250
 CONFIDENCE_THRESHOLD = 0.5
 DATASET_DIR = "static/dataset"
 
-
 # Predefined dataset information
 PREDEFINED_DATASET = [
     {
         "id": "Фото 1",
         "filename": "f1.jpg",
-        "expected_gender": "Female",  # For demo purposes
+        "filename_text": "Фото УЗИ 1",
+        "expected_gender_text": "Самка",  # For demo purposes
+        "expected_gender": "Female",
         "path": "/static/dataset/f1.jpg"
     },
     {
         "id": "Фото 2",
         "filename": "m1.jpg",
+        "filename_text": "Фото УЗИ 2",
+        "expected_gender_text": "Самец",
         "expected_gender": "Male",
         "path": "/static/dataset/m1.jpg"
     },
     {
         "id": "Фото 3",
         "filename": "f2.jpg",
+        "filename_text": "Фото УЗИ 3",
+        "expected_gender_text": "Самка",
         "expected_gender": "Female",
         "path": "/static/dataset/f2.jpg"
     },
     {
         "id": "Фото 4",
         "filename": "m2.jpg",
+        "filename_text": "Фото УЗИ 4",
+        "expected_gender_text": "Самец",
         "expected_gender": "Male",
         "path": "/static/dataset/m2.jpg"
     },
     {
         "id": "Фото 5",
         "filename": "f3.jpg",
-        "expected_gender": "Female",
+        "filename_text": "Фото УЗИ 5",
+        "expected_gender_text": "Самка",
+        "expected_gender": "Male",
         "path": "/static/dataset/f3.jpg"
     },
     {
         "id": "Фото 6",
         "filename": "m3.jpg",
+        "filename_text": "Фото УЗИ 6",
+        "expected_gender_text": "Самец",
         "expected_gender": "Male",
         "path": "/static/dataset/f3.jpg"
     }
@@ -91,14 +102,14 @@ except Exception as e:
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {
         "request": request,
-        "dataset": PREDEFINED_DATASET,
-        "demo_mode": DEMO_MODE
+        "dataset": PREDEFINED_DATASET
     })
+
 
 @app.get("/dataset")
 async def get_dataset():
     """Return the predefined dataset for frontend"""
-    return {"dataset": PREDEFINED_DATASET, "demo_mode": DEMO_MODE}
+    return {"dataset": PREDEFINED_DATASET}
 
 
 @app.post("/predict")
@@ -121,9 +132,9 @@ async def predict_fish_gender(files: List[UploadFile] = File(...)):
             })
 
     return JSONResponse(content={
-        "results": results,
-        "demo_mode": DEMO_MODE
+        "results": results
     })
+
 
 @app.post("/predict-selected")
 async def predict_selected_images(selected_ids: List[str]):
@@ -175,6 +186,7 @@ async def predict_selected_images(selected_ids: List[str]):
         "demo_mode": DEMO_MODE
     })
 
+
 async def process_single_image(image_data: bytes, filename: str, image_path: str = None, dataset_item: dict = None):
     """Process a single image and return prediction result"""
 
@@ -194,13 +206,16 @@ async def process_single_image(image_data: bytes, filename: str, image_path: str
         # Real model prediction
         image = preprocess_image(image_data, IMG_SIZE_X, IMG_SIZE_Y)
         prediction = model.predict(np.expand_dims(image, axis=0), verbose=0)[0][0]
+        print("real predict")
 
     # Convert to gender and confidence
     if prediction > CONFIDENCE_THRESHOLD:
         gender = "Male"
+        gender_text = "Самец"
         confidence = float(prediction * 100)
     else:
         gender = "Female"
+        gender_text = "Самка"
         confidence = float((1 - prediction) * 100)
 
     # Save uploaded image for display (if not from predefined dataset)
@@ -215,21 +230,24 @@ async def process_single_image(image_data: bytes, filename: str, image_path: str
     result = {
         "filename": filename,
         "gender": gender,
+        "gender_text": gender_text,
         "confidence": round(confidence, 2),
         "raw_prediction": float(prediction),
-        "image_path": image_path,
-        "demo_mode": DEMO_MODE
+        "image_path": image_path
     }
 
     # Add dataset info if available
     if dataset_item:
         result.update({
             "description": dataset_item.get('description', ''),
+            "filename_text": dataset_item.get('filename_text', ''),
             "expected_gender": dataset_item.get('expected_gender', ''),
+            "expected_gender_text": dataset_item.get('expected_gender_text', ''),
             "is_predefined": True
         })
 
     return result
+
 
 def create_demo_result(dataset_item: dict):
     """Create a demo result when actual image file doesn't exist"""
@@ -237,23 +255,28 @@ def create_demo_result(dataset_item: dict):
     if dataset_item['expected_gender'] == 'Male':
         prediction = np.random.uniform(0.65, 0.85)
         gender = "Male"
+        gender_text = "Самец"
         confidence = prediction * 100
     else:
         prediction = np.random.uniform(0.15, 0.35)
         gender = "Female"
+        gender_text = "Самка"
         confidence = (1 - prediction) * 100
 
     return {
         "filename": dataset_item['filename'],
         "gender": gender,
+        "filename_text": dataset_item.get('filename_text'),
+        "gender_text": gender_text,
         "confidence": round(confidence, 2),
         "raw_prediction": float(prediction),
         "image_path": dataset_item['path'],
         "description": dataset_item['description'],
         "expected_gender": dataset_item['expected_gender'],
-        "is_predefined": True,
-        "demo_mode": DEMO_MODE
+        "expected_gender_text": dataset_item.get('expected_gender_text'),
+        "is_predefined": True
     }
+
 
 @app.get("/health")
 async def health_check():

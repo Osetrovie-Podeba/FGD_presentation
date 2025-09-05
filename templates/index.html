@@ -6,8 +6,30 @@
     <title>🐟 Классификация пола рыбы ИИ</title>
     <link rel="stylesheet" href="/static/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .university-banner {
+            background: linear-gradient(135deg, #00356b 0%, #0056b3 100%);
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-bottom: 2px solid #ffd700;
+        }
+        .university-banner i {
+            margin-right: 8px;
+            color: #ffd700;
+        }
+    </style>
 </head>
 <body>
+    <!-- Стилизованная надпись сверху -->
+    <div class="university-banner">
+        <i class="fas fa-university"></i> Сделано в ВолГАУ
+    </div>
+    
     <div class="container">
         <!-- Header -->
         <header class="header">
@@ -30,8 +52,13 @@
         </nav>
         <!-- Predefined Dataset Section -->
         <section class="dataset-section" id="predefinedSection">
-            <h2><i class="fas fa-database"></i> Выберите примерные изображения</h2>
-            <p class="section-description">Выберите из нашей подобранной коллекции ультразвуковых изображений рыбы</p>
+            <h2><i class="fas fa-database"></i> Выберите примеры УЗИ изображений</h2>
+            <p class="section-description">    Нейросеть для определения пола осетра по ультразвуковым снимкам. 
+    Проект критически важен для сохранения исчезающих видов осетровых рыб — 
+    традиционные методы определения пола требуют инвазивных процедур, 
+    тогда как наша ИИ-система позволяет точно идентифицировать самок и самцов 
+    без стресса для рыб. Это обеспечивает эффективное управление племенными стадами, 
+    восстановление популяций и защиту генофонда редких видов, находящихся под угрозой вымирания.</p>
             <div class="dataset-grid" id="datasetGrid">
                 {% for item in dataset %}
                 <div class="dataset-card" data-id="{{ item.id }}">
@@ -43,10 +70,10 @@
                         </div>
                     </div>
                     <div class="dataset-info">
-                        <h4>{{ item.filename }}</h4>
+                        <h4>{{ item.filename_text }}</h4>
                         <p>{{ item.description }}</p>
                         <span class="expected-gender gender-{{ item.expected_gender.lower() }}">
-                            Ожидаемый: {{ item.expected_gender }}
+                            Ожидаемый: {{ item.expected_gender_text }}
                         </span>
                     </div>
                 </div>
